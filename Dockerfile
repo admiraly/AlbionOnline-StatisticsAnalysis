@@ -23,8 +23,8 @@ RUN apt-get update \
 WORKDIR /app
 COPY --from=build /app ./
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8087
+EXPOSE 8087
 
 # NOTE: live capture needs the NET_RAW (and usually NET_ADMIN) capability and host networking
 # to see game traffic:

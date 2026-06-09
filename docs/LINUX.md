@@ -59,7 +59,7 @@ docker run --rm --network host --cap-add NET_RAW --cap-add NET_ADMIN sat-web
 docker compose up --build
 ```
 
-Then open <http://localhost:8080>.
+Then open <http://localhost:8087>.
 
 > **Native Linux only for live capture.** `--network host` exposes the host's interfaces on native
 > Linux Docker. On Docker Desktop (macOS/Windows) it does not, so the dashboard runs but capture
@@ -73,7 +73,7 @@ dotnet build src/sat-linux.slnx -c Release
 
 # run the web dashboard
 dotnet run --project src/StatisticsAnalysisTool.Web -c Release
-# open http://localhost:8080
+# open http://localhost:8087
 ```
 
 Or publish a self-contained binary (no .NET install needed to run):
@@ -126,9 +126,9 @@ sudo ./cli/sat-cli capture --seconds 30
 
 ## Notes & security
 
-- The dashboard binds `http://0.0.0.0:8080` by default (so it works in containers). To keep it
-  local-only, set `ASPNETCORE_URLS=http://127.0.0.1:8080`.
-- There is **no authentication** on the dashboard — don't expose port 8080 to untrusted networks.
+- The dashboard binds `http://0.0.0.0:8087` by default (so it works in containers). To keep it
+  local-only, set `ASPNETCORE_URLS=http://127.0.0.1:8087`.
+- There is **no authentication** on the dashboard — don't expose port 8087 to untrusted networks.
 - This tool only **monitors** traffic; it does not modify the game client (same stance as upstream).
 
 ## Troubleshooting

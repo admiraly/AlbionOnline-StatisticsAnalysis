@@ -17,11 +17,11 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     ContentRootPath = AppContext.BaseDirectory,
 });
 
-// Bind to all interfaces on 8080 by default so the dashboard works in containers; override with
-// ASPNETCORE_URLS (e.g. http://127.0.0.1:8080 to keep it local-only).
+// Bind to all interfaces on 8087 by default so the dashboard works in containers; override with
+// ASPNETCORE_URLS (e.g. http://127.0.0.1:8087 to keep it local-only).
 if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
 {
-    builder.WebHost.UseUrls("http://0.0.0.0:8080");
+    builder.WebHost.UseUrls("http://0.0.0.0:8087");
 }
 
 builder.Services.AddSingleton<EngineService>();
@@ -122,7 +122,7 @@ app.MapPost("/api/replay-map", () =>
     return Results.Json(engine.GetMap());
 });
 
-Log.Information("Albion Statistics dashboard starting. Open http://localhost:8080 in a browser.");
+Log.Information("Albion Statistics dashboard starting. Open http://localhost:8087 in a browser.");
 app.Run();
 
 static string DescribeLibpcap(Exception ex)

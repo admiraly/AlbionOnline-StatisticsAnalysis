@@ -36,7 +36,7 @@ and a browser dashboard** that run natively on Linux — with a live **damage me
 and **map history** over the same Photon parser:
 
 ```bash
-docker compose up --build      # then open http://localhost:8080
+docker compose up --build      # then open http://localhost:8087
 ```
 
 Live capture needs libpcap and raw-capture privileges, and Albion must run on the same host. Full

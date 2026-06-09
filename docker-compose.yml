@@ -11,6 +11,6 @@ services:
       - NET_RAW
       - NET_ADMIN
     environment:
-      # Bind to all interfaces on 8080. Use http://127.0.0.1:8080 to keep the dashboard local-only.
-      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      # Bind to all interfaces on 8087. Use http://127.0.0.1:8087 to keep the dashboard local-only.
+      - ASPNETCORE_URLS=http://0.0.0.0:8087
     restart: unless-stopped
