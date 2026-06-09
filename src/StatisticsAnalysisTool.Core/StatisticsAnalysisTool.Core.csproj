@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Cross-platform engine: capture (libpcap) + Photon parsing + server detection.
+         No WPF / no System.Windows. Runs on Linux, macOS and Windows. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BinaryFormat.EthernetFrame" Version="0.1.5" />
+    <PackageReference Include="BinaryFormat.IPv4" Version="0.1.5" />
+    <PackageReference Include="BinaryFormat.Udp" Version="0.1.5" />
+    <PackageReference Include="Libpcap" Version="0.1.5" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StatisticsAnalysisTool.Abstractions\StatisticsAnalysisTool.Abstractions.csproj" />
+    <ProjectReference Include="..\StatisticsAnalysisTool.Network\StatisticsAnalysisTool.Network.csproj" />
+    <ProjectReference Include="..\StatisticsAnalysisTool.PhotonPackageParser\StatisticsAnalysisTool.PhotonPackageParser.csproj" />
+  </ItemGroup>
+
+</Project>
