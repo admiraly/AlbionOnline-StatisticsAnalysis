@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Bundled Albion item index (ao-bin-dumps formatted/items.txt): index : uniqueName : EN name.
+         Lets the Linux build resolve loot/gathering item indexes to names without the game files. -->
+    <EmbeddedResource Include="Data\items.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BinaryFormat.EthernetFrame" Version="0.1.5" />
     <PackageReference Include="BinaryFormat.IPv4" Version="0.1.5" />
     <PackageReference Include="BinaryFormat.Udp" Version="0.1.5" />

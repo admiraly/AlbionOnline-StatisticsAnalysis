@@ -1,4 +1,5 @@
 using StatisticsAnalysisTool.Core.Events;
+using StatisticsAnalysisTool.Core.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,10 +41,14 @@ public sealed class LootTracker
             return;
         }
 
+        var item = isSilver ? null : ItemDatabase.Instance.ByIndex(itemIndex);
+
         var entry = new LootEntry(
             Looter: string.IsNullOrWhiteSpace(looter) ? "?" : looter,
             LootedFrom: string.IsNullOrWhiteSpace(lootedFrom) ? null : lootedFrom,
             ItemIndex: itemIndex,
+            UniqueName: item?.UniqueName,
+            ItemName: item?.Name,
             Quantity: quantity,
             IsSilver: isSilver,
             TimestampUtc: DateTime.UtcNow);
@@ -93,6 +98,8 @@ public sealed record LootEntry(
     string Looter,
     string? LootedFrom,
     int ItemIndex,
+    string? UniqueName,
+    string? ItemName,
     int Quantity,
     bool IsSilver,
     DateTime TimestampUtc);

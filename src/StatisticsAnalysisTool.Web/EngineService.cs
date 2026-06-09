@@ -2,8 +2,11 @@ using StatisticsAnalysisTool.Core;
 using StatisticsAnalysisTool.Core.Capture;
 using StatisticsAnalysisTool.Core.Diagnostics;
 using StatisticsAnalysisTool.Core.Features.Combat;
+using StatisticsAnalysisTool.Core.Features.Gathering;
 using StatisticsAnalysisTool.Core.Features.Loot;
 using StatisticsAnalysisTool.Core.Features.Map;
+using StatisticsAnalysisTool.Core.Features.Party;
+using StatisticsAnalysisTool.Core.Features.Player;
 using System.Collections.Concurrent;
 
 namespace StatisticsAnalysisTool.Web;
@@ -33,6 +36,9 @@ public sealed class EngineService : IDisposable
     private readonly CombatTracker _combat = new();
     private readonly LootTracker _loot = new();
     private readonly MapTracker _map = new();
+    private readonly PlayerStatsTracker _player = new();
+    private readonly GatheringTracker _gathering = new();
+    private readonly PartyTracker _party = new();
 
     public EngineService(ILogger<EngineService> logger)
     {
@@ -155,6 +161,52 @@ public sealed class EngineService : IDisposable
         }
     }
 
+    /// <summary>Local-player session stats (fame/silver/might/favor/re-spec).</summary>
+    public PlayerStatsSnapshot GetPlayerStats() => _player.GetSnapshot();
+    public void ResetPlayer() => _player.Reset();
+
+    /// <summary>Gathering log (per-resource totals + recent).</summary>
+    public GatheringSnapshot GetGathering() => _gathering.GetSnapshot();
+    public void ResetGathering() => _gathering.Reset();
+
+    /// <summary>Current party membership.</summary>
+    public PartySnapshot GetParty() => _party.GetSnapshot();
+    public void ResetParty() => _party.Reset();
+
+    public void ReplayPlayerSample()
+    {
+        lock (_gate)
+        {
+            var receiver = _engine.Receiver;
+            receiver.ReceivePacket(PhotonSampleData.UpdateFamePacket(12450));
+            receiver.ReceivePacket(PhotonSampleData.UpdateFamePacket(8300));
+            receiver.ReceivePacket(PhotonSampleData.TakeSilverPacket(54000));
+            receiver.ReceivePacket(PhotonSampleData.MightFavorPacket(might: 320, favor: 95));
+        }
+    }
+
+    public void ReplayGatheringSample()
+    {
+        lock (_gate)
+        {
+            var receiver = _engine.Receiver;
+            receiver.ReceivePacket(PhotonSampleData.HarvestFinishedPacket(itemId: 1, amount: 7));   // some resource
+            receiver.ReceivePacket(PhotonSampleData.HarvestFinishedPacket(itemId: 8, amount: 3));   // carrot seeds
+            receiver.ReceivePacket(PhotonSampleData.HarvestFinishedPacket(itemId: 1, amount: 5));
+        }
+    }
+
+    public void ReplayPartySample()
+    {
+        lock (_gate)
+        {
+            var receiver = _engine.Receiver;
+            receiver.ReceivePacket(PhotonSampleData.PartyPlayerJoinedPacket(new Guid("11111111-1111-1111-1111-111111111111"), "Alice"));
+            receiver.ReceivePacket(PhotonSampleData.PartyPlayerJoinedPacket(new Guid("22222222-2222-2222-2222-222222222222"), "Bob"));
+            receiver.ReceivePacket(PhotonSampleData.PartyPlayerJoinedPacket(new Guid("33333333-3333-3333-3333-333333333333"), "Cara"));
+        }
+    }
+
     public IReadOnlyList<DeviceDto> GetDevices()
     {
         return AlbionEngine.GetAvailableNetworkDevices()
@@ -221,6 +273,9 @@ public sealed class EngineService : IDisposable
         Record("event", code, parameters.Count);
         _combat.Handle(code, parameters);
         _loot.Handle(code, parameters);
+        _player.Handle(code, parameters);
+        _gathering.Handle(code, parameters);
+        _party.Handle(code, parameters);
     }
 
     private void OnRequest(short code, Dictionary<byte, object> parameters)
@@ -257,6 +312,9 @@ public sealed class EngineService : IDisposable
         _combat.Reset();
         _loot.Reset();
         _map.Reset();
+        _player.Reset();
+        _gathering.Reset();
+        _party.Reset();
     }
 
     private static string DescribeStartFailure(Exception ex)

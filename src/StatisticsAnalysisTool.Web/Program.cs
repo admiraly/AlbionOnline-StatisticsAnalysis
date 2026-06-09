@@ -1,5 +1,6 @@
 using Serilog;
 using StatisticsAnalysisTool.Core.Capture;
+using StatisticsAnalysisTool.Core.Items;
 using StatisticsAnalysisTool.Web;
 
 // Configure Serilog so the engine's static Serilog.Log calls surface in the console.
@@ -25,6 +26,7 @@ if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ASPNETCORE_URLS")))
 }
 
 builder.Services.AddSingleton<EngineService>();
+builder.Services.AddSingleton<MarketService>();
 
 var app = builder.Build();
 
@@ -120,6 +122,67 @@ app.MapPost("/api/replay-map", () =>
 {
     engine.ReplayMapSample();
     return Results.Json(engine.GetMap());
+});
+
+app.MapGet("/api/player", () => Results.Json(engine.GetPlayerStats()));
+app.MapPost("/api/player/reset", () =>
+{
+    engine.ResetPlayer();
+    return Results.Json(engine.GetPlayerStats());
+});
+app.MapPost("/api/replay-player", () =>
+{
+    engine.ReplayPlayerSample();
+    return Results.Json(engine.GetPlayerStats());
+});
+
+app.MapGet("/api/gathering", () => Results.Json(engine.GetGathering()));
+app.MapPost("/api/gathering/reset", () =>
+{
+    engine.ResetGathering();
+    return Results.Json(engine.GetGathering());
+});
+app.MapPost("/api/replay-gathering", () =>
+{
+    engine.ReplayGatheringSample();
+    return Results.Json(engine.GetGathering());
+});
+
+app.MapGet("/api/party", () => Results.Json(engine.GetParty()));
+app.MapPost("/api/party/reset", () =>
+{
+    engine.ResetParty();
+    return Results.Json(engine.GetParty());
+});
+app.MapPost("/api/replay-party", () =>
+{
+    engine.ReplayPartySample();
+    return Results.Json(engine.GetParty());
+});
+
+// Item database: name search (bundled) + live market prices (AO Data Project).
+app.MapGet("/api/items/search", (string? q) =>
+{
+    var results = ItemDatabase.Instance
+        .Search(q ?? string.Empty, 50)
+        .Select(i => new { i.Index, i.UniqueName, i.Name, i.Tier, i.Enchantment, i.IconUrl });
+    return Results.Json(results);
+});
+
+app.MapGet("/api/items/db-info", () => Results.Json(new { count = ItemDatabase.Instance.Count }));
+
+app.MapGet("/api/items/prices", async (string items, string? server, MarketService market) =>
+{
+    var names = (items ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    try
+    {
+        var prices = await market.GetPricesAsync(names, string.IsNullOrWhiteSpace(server) ? "west" : server);
+        return Results.Json(prices);
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { error = $"Could not fetch prices: {ex.Message}" }, statusCode: StatusCodes.Status502BadGateway);
+    }
 });
 
 Log.Information("Albion Statistics dashboard starting. Open http://localhost:8087 in a browser.");

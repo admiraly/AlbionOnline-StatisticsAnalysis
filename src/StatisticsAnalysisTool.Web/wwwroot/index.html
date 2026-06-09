@@ -8,62 +8,78 @@
     :root {
       --bg: #161a1f; --panel: #1e2126; --panel2: #252a31; --line: #313842;
       --text: #e6e9ee; --muted: #93a0b1; --accent: #09c3a5; --accent2: #0c637f;
-      --warn: #fbaf69; --bad: #ef476f;
+      --warn: #fbaf69; --bad: #ef476f; --blue: #6cb6ff;
     }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
-    header { display: flex; align-items: center; gap: 16px; padding: 14px 22px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-    header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+    header { display: flex; align-items: center; gap: 16px; padding: 12px 22px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    header h1 { font-size: 16px; margin: 0; font-weight: 600; }
     header h1 span { color: var(--accent); }
     .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
     .badge.on { background: rgba(9,195,165,.15); color: var(--accent); border-color: var(--accent); }
     .server { margin-left: auto; font-size: 13px; color: var(--muted); }
     .server b { color: var(--text); }
+    nav.tabs { display: flex; gap: 2px; padding: 0 14px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    nav.tabs button { background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--muted); padding: 11px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    nav.tabs button:hover { color: var(--text); }
+    nav.tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .ctrlbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 22px; background: var(--panel); border-bottom: 1px solid var(--line); }
     main { padding: 22px; max-width: 1100px; margin: 0 auto; }
-    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
-    button { background: var(--accent2); color: #fff; border: none; padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    section.tab { display: none; }
+    section.tab.active { display: block; }
+    button { background: var(--accent2); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     button:hover { filter: brightness(1.12); }
     button.primary { background: var(--accent); color: #06231f; }
     button.ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+    button.small { padding: 4px 10px; font-size: 12px; }
     button:disabled { opacity: .45; cursor: not-allowed; }
-    input[type=text] { background: var(--panel2); border: 1px solid var(--line); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 13px; min-width: 220px; }
+    input[type=text] { background: var(--panel2); border: 1px solid var(--line); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 13px; }
+    select { background: var(--panel2); border: 1px solid var(--line); color: var(--text); padding: 7px 8px; border-radius: 6px; font-size: 13px; }
     label.chk { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
     .card .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-    .card .v { font-size: 26px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .card .v { font-size: 24px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .card .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
     .panel h2 { font-size: 13px; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-    .panel .body { padding: 8px 10px; max-height: 360px; overflow-y: auto; }
+    .panel h2 .actions { float: right; display: inline-flex; gap: 8px; align-items: center; text-transform: none; letter-spacing: 0; }
+    .panel .body { padding: 10px 12px; max-height: 460px; overflow-y: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    td { padding: 5px 8px; font-variant-numeric: tabular-nums; }
+    td, th { padding: 5px 8px; }
     .barwrap { background: var(--panel2); border-radius: 4px; height: 8px; overflow: hidden; }
     .bar { background: var(--accent); height: 100%; }
     .feed { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 12px; line-height: 1.7; }
-    .feed .kind { display: inline-block; width: 64px; }
+    .kind { display: inline-block; }
     .kind.event { color: var(--accent); }
     .kind.request { color: var(--warn); }
-    .kind.response { color: #6cb6ff; }
+    .kind.response { color: var(--blue); }
     .muted { color: var(--muted); }
     .empty { color: var(--muted); padding: 24px; text-align: center; font-size: 13px; }
     .banner { background: rgba(239,71,111,.12); border: 1px solid var(--bad); color: #ffd2dd; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; display: none; }
-    .devices { font-size: 13px; }
-    .devices li { padding: 3px 0; color: var(--muted); }
+    table.dmg { table-layout: fixed; }
+    table.dmg th { text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    table.dmg td.rank { width: 28px; color: var(--muted); }
+    table.dmg td.num { text-align: right; width: 84px; font-variant-numeric: tabular-nums; }
+    table.dmg td.dmg { width: 36%; }
+    table.dmg .heal { color: var(--accent); }
+    .npc { color: var(--muted); font-size: 11px; }
+    .itemrow { display: flex; align-items: center; gap: 10px; padding: 6px 6px; border-bottom: 1px solid var(--line); }
+    .itemrow img { width: 42px; height: 42px; background: var(--panel2); border-radius: 4px; flex-shrink: 0; }
+    .itemrow .nm { flex: 1; }
+    .itemrow .nm b { font-weight: 600; }
+    .tier { font-size: 11px; color: var(--muted); }
+    .searchbar { display: flex; gap: 8px; margin-bottom: 12px; }
+    .searchbar input { flex: 1; }
+    .prices { font-size: 12px; margin-top: 4px; color: var(--muted); }
+    .prices b { color: var(--text); }
+    .members li { padding: 5px 4px; border-bottom: 1px solid var(--line); list-style: none; }
+    ul { margin: 0; padding: 0; }
+    .devices li { padding: 3px 0; color: var(--muted); list-style: none; }
     .devices b { color: var(--text); }
     footer { color: var(--muted); font-size: 12px; text-align: center; padding: 16px; }
     a { color: var(--accent); }
-    .panel h2 .actions { float: right; display: inline-flex; gap: 8px; align-items: center; text-transform: none; letter-spacing: 0; }
-    button.small { padding: 4px 10px; font-size: 12px; }
-    table.dmg { table-layout: fixed; }
-    table.dmg th { text-align: left; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 4px 8px; font-weight: 600; }
-    table.dmg td { padding: 6px 8px; vertical-align: middle; }
-    table.dmg td.rank { width: 28px; color: var(--muted); }
-    table.dmg td.num { text-align: right; width: 84px; font-variant-numeric: tabular-nums; }
-    table.dmg td.dmg { width: 38%; }
-    table.dmg td.dmg .barwrap { margin-top: 3px; }
-    table.dmg .heal { color: var(--accent); }
-    table.dmg .npc { color: var(--muted); font-size: 11px; }
   </style>
 </head>
 <body>
@@ -73,85 +89,155 @@
     <span class="server">Server: <b id="server">Unknown</b></span>
   </header>
 
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" class="active">Overview</button>
+    <button data-tab="damage">Damage meter</button>
+    <button data-tab="loot">Loot</button>
+    <button data-tab="gathering">Gathering</button>
+    <button data-tab="player">Player</button>
+    <button data-tab="party">Party</button>
+    <button data-tab="map">Map</button>
+    <button data-tab="items">Item search</button>
+    <button data-tab="devices">Devices</button>
+  </nav>
+
+  <div class="ctrlbar">
+    <button id="btn-start" class="primary small">▶ Start capture</button>
+    <button id="btn-stop" class="ghost small">■ Stop</button>
+    <input id="filter" type="text" placeholder="optional BPF filter (blank = Photon ports)" style="min-width:240px" />
+    <label class="chk"><input id="all" type="checkbox" /> capture all</label>
+  </div>
+
   <main>
     <div id="banner" class="banner"></div>
 
-    <div class="controls">
-      <button id="btn-start" class="primary">▶ Start capture</button>
-      <button id="btn-stop" class="ghost">■ Stop</button>
-      <input id="filter" type="text" placeholder="optional BPF filter (blank = Photon ports)" />
-      <label class="chk"><input id="all" type="checkbox" /> capture all (no filter)</label>
-      <button id="btn-replay" class="ghost" title="Inject a known sample packet to verify the pipeline">⟳ Replay sample</button>
-    </div>
-
-    <div class="cards">
-      <div class="card"><div class="k">Events</div><div class="v" id="c-events">0</div></div>
-      <div class="card"><div class="k">Requests</div><div class="v" id="c-requests">0</div></div>
-      <div class="card"><div class="k">Responses</div><div class="v" id="c-responses">0</div></div>
-      <div class="card"><div class="k">Uptime</div><div class="v" id="c-uptime">0s</div></div>
-    </div>
-
-    <div class="panel" style="margin-bottom:16px">
-      <h2>Damage meter
-        <span class="actions">
-          <span id="dm-meta" class="muted"></span>
-          <button id="btn-replay-combat" class="ghost small" title="Inject a sample fight to populate the meter">⚔ Replay fight</button>
-          <button id="btn-reset-combat" class="ghost small">⟲ Reset</button>
-        </span>
-      </h2>
-      <div class="body">
-        <table class="dmg" id="dmg-table">
-          <thead><tr><th></th><th>Player</th><th style="text-align:right">Damage</th><th style="text-align:right">DPS</th><th style="text-align:right">%</th><th style="text-align:right">Healing</th></tr></thead>
-          <tbody></tbody>
-        </table>
-        <div id="dmg-empty" class="empty">No combat yet. Fight something in-game (with capture running), or click “Replay fight”.</div>
+    <!-- OVERVIEW -->
+    <section class="tab active" data-tab="overview">
+      <div class="cards">
+        <div class="card"><div class="k">Events</div><div class="v" id="c-events">0</div></div>
+        <div class="card"><div class="k">Requests</div><div class="v" id="c-requests">0</div></div>
+        <div class="card"><div class="k">Responses</div><div class="v" id="c-responses">0</div></div>
+        <div class="card"><div class="k">Uptime</div><div class="v" id="c-uptime">0s</div></div>
       </div>
-    </div>
-
-    <div class="grid2">
-      <div class="panel">
-        <h2>Top event codes</h2>
-        <div class="body"><table id="top-events"><tbody></tbody></table>
-          <div id="top-empty" class="empty">No events decoded yet. Start capture (with Albion running) or click “Replay sample”.</div>
+      <div class="grid2">
+        <div class="panel">
+          <h2>Top event codes <span class="actions"><button id="btn-replay" class="ghost small">⟳ Replay sample</button></span></h2>
+          <div class="body"><table id="top-events"><tbody></tbody></table><div id="top-empty" class="empty">No events yet. Start capture, or click “Replay sample”.</div></div>
+        </div>
+        <div class="panel">
+          <h2>Recent packets</h2>
+          <div class="body feed" id="recent"><div class="empty">Waiting for traffic…</div></div>
         </div>
       </div>
-      <div class="panel">
-        <h2>Recent packets</h2>
-        <div class="body feed" id="recent"><div class="empty">Waiting for traffic…</div></div>
-      </div>
-    </div>
+    </section>
 
-    <div class="grid2" style="margin-top:16px">
+    <!-- DAMAGE -->
+    <section class="tab" data-tab="damage">
+      <div class="panel">
+        <h2>Damage meter
+          <span class="actions"><span id="dm-meta" class="muted"></span>
+            <button id="btn-replay-combat" class="ghost small">⚔ Replay fight</button>
+            <button id="btn-reset-combat" class="ghost small">⟲ Reset</button></span>
+        </h2>
+        <div class="body">
+          <table class="dmg" id="dmg-table">
+            <thead><tr><th></th><th>Player</th><th style="text-align:right">Damage</th><th style="text-align:right">DPS</th><th style="text-align:right">%</th><th style="text-align:right">Healing</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div id="dmg-empty" class="empty">No combat yet. Fight in-game (capture running), or click “Replay fight”.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOOT -->
+    <section class="tab" data-tab="loot">
       <div class="panel">
         <h2>Loot log
-          <span class="actions">
-            <span id="loot-meta" class="muted"></span>
-            <button id="btn-replay-loot" class="ghost small" title="Inject sample loot">＋ Replay</button>
-            <button id="btn-reset-loot" class="ghost small">⟲</button>
-          </span>
+          <span class="actions"><span id="loot-meta" class="muted"></span>
+            <button id="btn-replay-loot" class="ghost small">＋ Replay</button>
+            <button id="btn-reset-loot" class="ghost small">⟲</button></span>
         </h2>
-        <div class="body feed" id="loot-list"><div class="empty">No loot yet. Item names need the game item DB (not yet ported); ids are shown for now.</div></div>
+        <div class="body" id="loot-list"><div class="empty">No loot yet.</div></div>
       </div>
-      <div class="panel">
-        <h2>Map history
-          <span class="actions">
-            <span id="map-meta" class="muted"></span>
-            <button id="btn-replay-map" class="ghost small" title="Inject sample zone changes">＋ Replay</button>
-            <button id="btn-reset-map" class="ghost small">⟲</button>
-          </span>
-        </h2>
-        <div class="body feed" id="map-list"><div class="empty">No zone changes yet. Friendly zone names need the world DB (not yet ported).</div></div>
-      </div>
-    </div>
+    </section>
 
-    <div class="panel" style="margin-top:16px">
-      <h2>Capture devices (libpcap)</h2>
-      <div class="body"><ul class="devices" id="devices"><li class="muted">loading…</li></ul></div>
-    </div>
+    <!-- GATHERING -->
+    <section class="tab" data-tab="gathering">
+      <div class="panel">
+        <h2>Gathering totals
+          <span class="actions"><button id="btn-replay-gathering" class="ghost small">＋ Replay</button>
+            <button id="btn-reset-gathering" class="ghost small">⟲</button></span>
+        </h2>
+        <div class="body" id="gathering-list"><div class="empty">No resources gathered yet.</div></div>
+      </div>
+    </section>
+
+    <!-- PLAYER -->
+    <section class="tab" data-tab="player">
+      <div class="panel">
+        <h2>Session stats
+          <span class="actions"><button id="btn-replay-player" class="ghost small">＋ Replay</button>
+            <button id="btn-reset-player" class="ghost small">⟲</button></span>
+        </h2>
+        <div class="body">
+          <div class="cards" style="margin-bottom:0">
+            <div class="card"><div class="k">Fame</div><div class="v" id="p-fame">0</div><div class="s" id="p-fameh">0/h</div></div>
+            <div class="card"><div class="k">Silver</div><div class="v" id="p-silver">0</div><div class="s" id="p-silverh">0/h</div></div>
+            <div class="card"><div class="k">Might</div><div class="v" id="p-might">0</div></div>
+            <div class="card"><div class="k">Favor</div><div class="v" id="p-favor">0</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARTY -->
+    <section class="tab" data-tab="party">
+      <div class="panel">
+        <h2>Party <span class="actions"><span id="party-meta" class="muted"></span>
+          <button id="btn-replay-party" class="ghost small">＋ Replay</button>
+          <button id="btn-reset-party" class="ghost small">⟲</button></span></h2>
+        <div class="body"><ul class="members" id="party-list"><li class="empty">Not in a party.</li></ul></div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="tab" data-tab="map">
+      <div class="panel">
+        <h2>Map history <span class="actions"><span id="map-meta" class="muted"></span>
+          <button id="btn-replay-map" class="ghost small">＋ Replay</button>
+          <button id="btn-reset-map" class="ghost small">⟲</button></span></h2>
+        <div class="body feed" id="map-list"><div class="empty">No zone changes yet.</div></div>
+      </div>
+    </section>
+
+    <!-- ITEMS -->
+    <section class="tab" data-tab="items">
+      <div class="panel">
+        <h2>Item search <span class="actions"><span id="items-meta" class="muted"></span>
+          <select id="price-server" title="Market region">
+            <option value="west">Americas</option><option value="east">Asia</option><option value="europe">Europe</option>
+          </select></span></h2>
+        <div class="body">
+          <div class="searchbar">
+            <input id="item-q" type="text" placeholder="Search items by name… (e.g. Druidic, T4_BAG)" />
+          </div>
+          <div id="item-results"><div class="empty">Type to search the bundled item database.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEVICES -->
+    <section class="tab" data-tab="devices">
+      <div class="panel">
+        <h2>Capture devices (libpcap)</h2>
+        <div class="body"><ul class="devices" id="devices"><li class="muted">loading…</li></ul></div>
+      </div>
+    </section>
   </main>
 
   <footer>
-    Cross-platform engine over the existing Photon parser · <a href="https://github.com/Triky313/AlbionOnline-StatisticsAnalysis">upstream project</a>
+    Cross-platform engine over the existing Photon parser · item data: ao-bin-dumps · icons: render.albiononline.com ·
+    <a href="https://github.com/Triky313/AlbionOnline-StatisticsAnalysis">upstream</a>
   </footer>
 
   <script src="app.js"></script>

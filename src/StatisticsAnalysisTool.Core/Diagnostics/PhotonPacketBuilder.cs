@@ -125,6 +125,11 @@ public static class PhotonPacketBuilder
                 output.Add(0x07);                  // Protocol18Type.String
                 WriteString(output, str);
                 break;
+            case byte[] bytes:
+                output.Add(0x43);                  // Protocol18Type.ByteArray (67)
+                WriteVarint(output, (uint) bytes.Length);
+                output.AddRange(bytes);
+                break;
             default:
                 throw new NotSupportedException($"PhotonPacketBuilder cannot encode {value.GetType().Name}.");
         }
