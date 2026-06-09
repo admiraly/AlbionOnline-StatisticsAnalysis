@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="StatisticsAnalysisTool.Abstractions/StatisticsAnalysisTool.Abstractions.csproj" />
+  <Project Path="StatisticsAnalysisTool.Cli/StatisticsAnalysisTool.Cli.csproj" />
+  <Project Path="StatisticsAnalysisTool.Core/StatisticsAnalysisTool.Core.csproj" />
+  <Project Path="StatisticsAnalysisTool.Diagnostics/StatisticsAnalysisTool.Diagnostics.csproj" />
+  <Project Path="StatisticsAnalysisTool.Network/StatisticsAnalysisTool.Network.csproj" />
+  <Project Path="StatisticsAnalysisTool.PhotonPackageParser/StatisticsAnalysisTool.PhotonPackageParser.csproj" />
+  <Project Path="StatisticsAnalysisTool.Protocol18/StatisticsAnalysisTool.Protocol18.csproj" />
+  <Project Path="StatisticsAnalysisTool.Web/StatisticsAnalysisTool.Web.csproj" />
+</Solution>

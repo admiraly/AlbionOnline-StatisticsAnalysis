@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Albion Statistics — Linux Dashboard</title>
+  <style>
+    :root {
+      --bg: #161a1f; --panel: #1e2126; --panel2: #252a31; --line: #313842;
+      --text: #e6e9ee; --muted: #93a0b1; --accent: #09c3a5; --accent2: #0c637f;
+      --warn: #fbaf69; --bad: #ef476f;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { display: flex; align-items: center; gap: 16px; padding: 14px 22px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+    header h1 span { color: var(--accent); }
+    .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); }
+    .badge.on { background: rgba(9,195,165,.15); color: var(--accent); border-color: var(--accent); }
+    .server { margin-left: auto; font-size: 13px; color: var(--muted); }
+    .server b { color: var(--text); }
+    main { padding: 22px; max-width: 1100px; margin: 0 auto; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+    button { background: var(--accent2); color: #fff; border: none; padding: 9px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    button:hover { filter: brightness(1.12); }
+    button.primary { background: var(--accent); color: #06231f; }
+    button.ghost { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    input[type=text] { background: var(--panel2); border: 1px solid var(--line); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 13px; min-width: 220px; }
+    label.chk { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+    .card .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .card .v { font-size: 26px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .panel h2 { font-size: 13px; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .panel .body { padding: 8px 10px; max-height: 360px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    td { padding: 5px 8px; font-variant-numeric: tabular-nums; }
+    .barwrap { background: var(--panel2); border-radius: 4px; height: 8px; overflow: hidden; }
+    .bar { background: var(--accent); height: 100%; }
+    .feed { font-family: ui-monospace, "Cascadia Code", monospace; font-size: 12px; line-height: 1.7; }
+    .feed .kind { display: inline-block; width: 64px; }
+    .kind.event { color: var(--accent); }
+    .kind.request { color: var(--warn); }
+    .kind.response { color: #6cb6ff; }
+    .muted { color: var(--muted); }
+    .empty { color: var(--muted); padding: 24px; text-align: center; font-size: 13px; }
+    .banner { background: rgba(239,71,111,.12); border: 1px solid var(--bad); color: #ffd2dd; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .devices { font-size: 13px; }
+    .devices li { padding: 3px 0; color: var(--muted); }
+    .devices b { color: var(--text); }
+    footer { color: var(--muted); font-size: 12px; text-align: center; padding: 16px; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Albion <span>Statistics</span> — Linux Dashboard</h1>
+    <span id="status-badge" class="badge">stopped</span>
+    <span class="server">Server: <b id="server">Unknown</b></span>
+  </header>
+
+  <main>
+    <div id="banner" class="banner"></div>
+
+    <div class="controls">
+      <button id="btn-start" class="primary">▶ Start capture</button>
+      <button id="btn-stop" class="ghost">■ Stop</button>
+      <input id="filter" type="text" placeholder="optional BPF filter (blank = Photon ports)" />
+      <label class="chk"><input id="all" type="checkbox" /> capture all (no filter)</label>
+      <button id="btn-replay" class="ghost" title="Inject a known sample packet to verify the pipeline">⟳ Replay sample</button>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="k">Events</div><div class="v" id="c-events">0</div></div>
+      <div class="card"><div class="k">Requests</div><div class="v" id="c-requests">0</div></div>
+      <div class="card"><div class="k">Responses</div><div class="v" id="c-responses">0</div></div>
+      <div class="card"><div class="k">Uptime</div><div class="v" id="c-uptime">0s</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="panel">
+        <h2>Top event codes</h2>
+        <div class="body"><table id="top-events"><tbody></tbody></table>
+          <div id="top-empty" class="empty">No events decoded yet. Start capture (with Albion running) or click “Replay sample”.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Recent packets</h2>
+        <div class="body feed" id="recent"><div class="empty">Waiting for traffic…</div></div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Capture devices (libpcap)</h2>
+      <div class="body"><ul class="devices" id="devices"><li class="muted">loading…</li></ul></div>
+    </div>
+  </main>
+
+  <footer>
+    Cross-platform engine over the existing Photon parser · <a href="https://github.com/Triky313/AlbionOnline-StatisticsAnalysis">upstream project</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

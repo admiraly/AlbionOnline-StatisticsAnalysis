@@ -1,0 +1,20 @@
+# Build outputs
+**/bin/
+**/obj/
+artifacts/
+publish/
+
+# VCS / IDE
+.git/
+.github/
+.vs/
+.idea/
+
+# The Windows-only WPF app and test project are not part of the cross-platform
+# engine/web build and would only bloat the image context.
+src/StatisticsAnalysisTool/
+src/StatisticsAnalysisTool.UnitTests/
+
+# Misc large/irrelevant assets
+*.png
+docs/

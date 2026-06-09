@@ -1,0 +1,6 @@
+# Keep Linux-targeted text files LF so they work in containers / on Linux,
+# regardless of the committer's platform.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf

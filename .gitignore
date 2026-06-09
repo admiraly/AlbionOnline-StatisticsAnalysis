@@ -337,3 +337,6 @@ ASALocalRun/
 .dotnet/
 
 .build-verify/
+
+# Linux port build artifacts
+/artifacts/
