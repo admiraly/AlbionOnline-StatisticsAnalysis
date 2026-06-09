@@ -46,24 +46,26 @@ build on — see [PORTING.md](../PORTING.md).
 ## Option A — Docker (recommended)
 
 ```bash
-# build the image (installs libpcap + the libpcap.so symlink inside the image)
-docker build -t sat-web .
-
-# run it — host networking + raw-capture caps so it can see game traffic
-docker run --rm --network host --cap-add NET_RAW --cap-add NET_ADMIN sat-web
+docker compose up --build        # then open http://localhost:8087
 ```
 
-…or with compose:
+Open the dashboard at **<http://localhost:8087>** — not `http://0.0.0.0:8087` (`0.0.0.0` is the
+bind-all address the server listens on, not a browsable URL).
+
+The default compose publishes the port, so it's reachable on Windows, macOS and Linux. Equivalent
+plain Docker:
 
 ```bash
-docker compose up --build
+docker build -t sat-web .
+docker run --rm -p 8087:8087 --cap-add NET_RAW --cap-add NET_ADMIN sat-web
 ```
 
-Then open <http://localhost:8087>.
-
-> **Native Linux only for live capture.** `--network host` exposes the host's interfaces on native
-> Linux Docker. On Docker Desktop (macOS/Windows) it does not, so the dashboard runs but capture
-> won't see game traffic there. Run on the Linux machine where Albion runs.
+> **Live capture needs host networking (native Linux only).** To capture real game traffic the
+> container must share the host network — on a native Linux host, swap the published port for host
+> networking: in `docker-compose.yml` remove the `ports:` block and uncomment `network_mode: host`
+> (or `docker run --network host …`). Host networking is **not** supported on Docker Desktop
+> (Windows/macOS); there the dashboard works via the published port but cannot see game traffic, so
+> run natively on the Linux box where Albion runs.
 
 ## Option B — Native .NET (no Docker)
 
