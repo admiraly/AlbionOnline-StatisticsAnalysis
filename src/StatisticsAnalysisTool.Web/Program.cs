@@ -98,6 +98,30 @@ app.MapPost("/api/replay-combat", () =>
     return Results.Json(engine.GetCombat());
 });
 
+app.MapGet("/api/loot", () => Results.Json(engine.GetLoot()));
+app.MapPost("/api/loot/reset", () =>
+{
+    engine.ResetLoot();
+    return Results.Json(engine.GetLoot());
+});
+app.MapPost("/api/replay-loot", () =>
+{
+    engine.ReplayLootSample();
+    return Results.Json(engine.GetLoot());
+});
+
+app.MapGet("/api/map", () => Results.Json(engine.GetMap()));
+app.MapPost("/api/map/reset", () =>
+{
+    engine.ResetMap();
+    return Results.Json(engine.GetMap());
+});
+app.MapPost("/api/replay-map", () =>
+{
+    engine.ReplayMapSample();
+    return Results.Json(engine.GetMap());
+});
+
 Log.Information("Albion Statistics dashboard starting. Open http://localhost:8080 in a browser.");
 app.Run();
 

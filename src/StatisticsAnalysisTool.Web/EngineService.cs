@@ -2,6 +2,8 @@ using StatisticsAnalysisTool.Core;
 using StatisticsAnalysisTool.Core.Capture;
 using StatisticsAnalysisTool.Core.Diagnostics;
 using StatisticsAnalysisTool.Core.Features.Combat;
+using StatisticsAnalysisTool.Core.Features.Loot;
+using StatisticsAnalysisTool.Core.Features.Map;
 using System.Collections.Concurrent;
 
 namespace StatisticsAnalysisTool.Web;
@@ -29,6 +31,8 @@ public sealed class EngineService : IDisposable
     private const int RecentCap = 100;
 
     private readonly CombatTracker _combat = new();
+    private readonly LootTracker _loot = new();
+    private readonly MapTracker _map = new();
 
     public EngineService(ILogger<EngineService> logger)
     {
@@ -120,6 +124,37 @@ public sealed class EngineService : IDisposable
         }
     }
 
+    /// <summary>Loot log snapshot (recent grabbed items / silver).</summary>
+    public LootSnapshot GetLoot() => _loot.GetSnapshot();
+
+    public void ResetLoot() => _loot.Reset();
+
+    public void ReplayLootSample()
+    {
+        lock (_gate)
+        {
+            var receiver = _engine.Receiver;
+            receiver.ReceivePacket(PhotonSampleData.GrabbedLootPacket("Alice", "Mob", itemIndex: 1841, quantity: 1));
+            receiver.ReceivePacket(PhotonSampleData.GrabbedLootPacket("Bob", "Dead Player", itemIndex: 7006, quantity: 3));
+            receiver.ReceivePacket(PhotonSampleData.GrabbedSilverPacket("Alice", amount: 15500));
+        }
+    }
+
+    /// <summary>Map / zone history snapshot.</summary>
+    public MapSnapshot GetMap() => _map.GetSnapshot();
+
+    public void ResetMap() => _map.Reset();
+
+    public void ReplayMapSample()
+    {
+        lock (_gate)
+        {
+            var receiver = _engine.Receiver;
+            receiver.ReceivePacket(PhotonSampleData.ChangeClusterPacket("0301", "Martlock"));
+            receiver.ReceivePacket(PhotonSampleData.ChangeClusterPacket("4205", "Mardale Outskirts"));
+        }
+    }
+
     public IReadOnlyList<DeviceDto> GetDevices()
     {
         return AlbionEngine.GetAvailableNetworkDevices()
@@ -185,6 +220,7 @@ public sealed class EngineService : IDisposable
         _eventCounts.AddOrUpdate(code, 1, (_, v) => v + 1);
         Record("event", code, parameters.Count);
         _combat.Handle(code, parameters);
+        _loot.Handle(code, parameters);
     }
 
     private void OnRequest(short code, Dictionary<byte, object> parameters)
@@ -197,6 +233,7 @@ public sealed class EngineService : IDisposable
     {
         Interlocked.Increment(ref _responseTotal);
         Record("response", code, parameters.Count);
+        _map.HandleResponse(code, parameters);
     }
 
     private void Record(string kind, short code, int paramCount)
@@ -218,6 +255,8 @@ public sealed class EngineService : IDisposable
         }
 
         _combat.Reset();
+        _loot.Reset();
+        _map.Reset();
     }
 
     private static string DescribeStartFailure(Exception ex)

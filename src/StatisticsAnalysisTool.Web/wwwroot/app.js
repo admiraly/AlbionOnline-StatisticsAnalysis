@@ -111,6 +111,49 @@ async function refreshCombat() {
   }
 }
 
+function time(iso) {
+  return new Date(iso).toLocaleTimeString("en-US", { hour12: false });
+}
+
+function renderLoot(snap) {
+  const el = $("loot-list");
+  const items = snap.recent || [];
+  $("loot-meta").textContent = (snap.itemEvents || snap.totalSilver)
+    ? `${fmt(snap.itemEvents)} items · ${fmt(snap.totalSilver)} silver`
+    : "";
+  if (!items.length) { el.innerHTML = '<div class="empty">No loot yet.</div>'; return; }
+  el.innerHTML = items
+    .map((l) => {
+      const what = l.isSilver ? `<span class="kind event">${fmt(l.quantity)} silver</span>` : `item #${l.itemIndex} ×${l.quantity}`;
+      const from = l.lootedFrom ? ` <span class="muted">from ${esc(l.lootedFrom)}</span>` : "";
+      return `<div><span class="muted">${time(l.timestampUtc)}</span> <b>${esc(l.looter)}</b> ${what}${from}</div>`;
+    })
+    .join("");
+}
+
+function renderMap(snap) {
+  const el = $("map-list");
+  const hist = snap.history || [];
+  $("map-meta").textContent = snap.currentCluster ? `now: ${esc(snap.currentIsland || snap.currentCluster)}` : "";
+  if (!hist.length) { el.innerHTML = '<div class="empty">No zone changes yet.</div>'; return; }
+  el.innerHTML = hist
+    .map((v, i) => {
+      const name = v.island ? esc(v.island) : esc(v.clusterId);
+      const id = v.island ? ` <span class="muted">(${esc(v.clusterId)})</span>` : "";
+      const here = i === 0 ? ' <span class="kind event">• here</span>' : "";
+      return `<div><span class="muted">${time(v.enteredUtc)}</span> <b>${name}</b>${id} <span class="muted">${v.secondsInZone}s</span>${here}</div>`;
+    })
+    .join("");
+}
+
+async function refreshLoot() {
+  try { const { data } = await api("/api/loot"); if (data) renderLoot(data); } catch (e) { /* retry next tick */ }
+}
+
+async function refreshMap() {
+  try { const { data } = await api("/api/map"); if (data) renderMap(data); } catch (e) { /* retry next tick */ }
+}
+
 async function refreshStatus() {
   try {
     const { data } = await api("/api/status");
@@ -167,10 +210,19 @@ $("btn-reset-combat").addEventListener("click", async () => {
   refreshCombat();
 });
 
+$("btn-replay-loot").addEventListener("click", async () => { await api("/api/replay-loot", "POST"); refreshLoot(); });
+$("btn-reset-loot").addEventListener("click", async () => { await api("/api/loot/reset", "POST"); refreshLoot(); });
+$("btn-replay-map").addEventListener("click", async () => { await api("/api/replay-map", "POST"); refreshMap(); });
+$("btn-reset-map").addEventListener("click", async () => { await api("/api/map/reset", "POST"); refreshMap(); });
+
 refreshDevices();
 refreshStatus();
 refreshCombat();
+refreshLoot();
+refreshMap();
 setInterval(() => {
   refreshStatus();
   refreshCombat();
+  refreshLoot();
+  refreshMap();
 }, 1000);

@@ -121,6 +121,29 @@
       </div>
     </div>
 
+    <div class="grid2" style="margin-top:16px">
+      <div class="panel">
+        <h2>Loot log
+          <span class="actions">
+            <span id="loot-meta" class="muted"></span>
+            <button id="btn-replay-loot" class="ghost small" title="Inject sample loot">＋ Replay</button>
+            <button id="btn-reset-loot" class="ghost small">⟲</button>
+          </span>
+        </h2>
+        <div class="body feed" id="loot-list"><div class="empty">No loot yet. Item names need the game item DB (not yet ported); ids are shown for now.</div></div>
+      </div>
+      <div class="panel">
+        <h2>Map history
+          <span class="actions">
+            <span id="map-meta" class="muted"></span>
+            <button id="btn-replay-map" class="ghost small" title="Inject sample zone changes">＋ Replay</button>
+            <button id="btn-reset-map" class="ghost small">⟲</button>
+          </span>
+        </h2>
+        <div class="body feed" id="map-list"><div class="empty">No zone changes yet. Friendly zone names need the world DB (not yet ported).</div></div>
+      </div>
+    </div>
+
     <div class="panel" style="margin-top:16px">
       <h2>Capture devices (libpcap)</h2>
       <div class="body"><ul class="devices" id="devices"><li class="muted">loading…</li></ul></div>

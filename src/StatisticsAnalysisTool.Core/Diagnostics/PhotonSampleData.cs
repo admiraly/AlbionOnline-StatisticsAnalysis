@@ -39,4 +39,31 @@ public static class PhotonSampleData
             ((byte) 2, healthChange),
             ((byte) 6, causerId),
         ]);
+
+    /// <summary>An <c>OtherGrabbedLoot</c> event: a player looted an item from a body/mob.</summary>
+    public static byte[] GrabbedLootPacket(string looter, string lootedFrom, int itemIndex, int quantity)
+        => PhotonPacketBuilder.BuildEvent((short) EventCodes.OtherGrabbedLoot,
+        [
+            ((byte) 1, lootedFrom),
+            ((byte) 2, looter),
+            ((byte) 3, false),
+            ((byte) 4, itemIndex),
+            ((byte) 5, quantity),
+        ]);
+
+    /// <summary>An <c>OtherGrabbedLoot</c> event carrying silver instead of an item.</summary>
+    public static byte[] GrabbedSilverPacket(string looter, int amount)
+        => PhotonPacketBuilder.BuildEvent((short) EventCodes.OtherGrabbedLoot,
+        [
+            ((byte) 2, looter),
+            ((byte) 3, true),
+            ((byte) 5, amount),
+        ]);
+
+    /// <summary>A <c>ChangeCluster</c> operation response: the player entered a new zone.</summary>
+    public static byte[] ChangeClusterPacket(string clusterId, string? island = null)
+        => PhotonPacketBuilder.BuildResponse((short) OperationCodes.ChangeCluster,
+            island is null
+                ? [((byte) 0, clusterId)]
+                : [((byte) 0, clusterId), ((byte) 2, island)]);
 }

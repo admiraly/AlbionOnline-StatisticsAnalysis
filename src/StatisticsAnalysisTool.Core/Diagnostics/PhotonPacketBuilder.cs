@@ -13,6 +13,9 @@ namespace StatisticsAnalysisTool.Core.Diagnostics;
 public static class PhotonPacketBuilder
 {
     private const byte EventCodeParameter = 252;
+    private const byte OperationCodeParameter = 253;
+    private const byte MessageTypeEvent = 0x04;
+    private const byte MessageTypeOperationResponse = 0x03;
 
     /// <summary>
     /// Builds a Photon packet with one Event: the given parameters plus parameter 252 = eventCode.
@@ -33,10 +36,36 @@ public static class PhotonPacketBuilder
         body.Add(EventCodeParameter);
         WriteValue(body, eventCode);
 
-        return WrapInSendReliable(body);
+        return WrapInSendReliable(body, MessageTypeEvent);
     }
 
-    private static byte[] WrapInSendReliable(List<byte> eventData)
+    /// <summary>
+    /// Builds a Photon packet with one OperationResponse: the given parameters plus parameter 253 =
+    /// operationCode (returnCode 0, null debug message).
+    /// </summary>
+    public static byte[] BuildResponse(short operationCode, IReadOnlyList<(byte Key, object Value)> parameters)
+    {
+        var body = new List<byte>();
+        body.Add((byte) (operationCode & 0xFF)); // operation code byte (real code is in parameter 253)
+        body.Add(0x00);                          // returnCode (short, little-endian) = 0
+        body.Add(0x00);
+        body.Add(0x08);                          // debug message: Protocol18Type.Null
+
+        body.Add((byte) (parameters.Count + 1)); // parameter count (+1 for the operation-code parameter)
+        foreach (var (key, value) in parameters)
+        {
+            body.Add(key);
+            WriteValue(body, value);
+        }
+
+        // The Albion operation code lives in parameter 253.
+        body.Add(OperationCodeParameter);
+        WriteValue(body, operationCode);
+
+        return WrapInSendReliable(body, MessageTypeOperationResponse);
+    }
+
+    private static byte[] WrapInSendReliable(List<byte> eventData, byte messageType)
     {
         // commandLength counts the whole command: 12-byte header + [skip][messageType][payload].
         int commandLengthField = 12 + 2 + eventData.Count;
@@ -60,7 +89,7 @@ public static class PhotonPacketBuilder
 
         // SendReliable body.
         packet.Add(0x00);                          // skipped byte
-        packet.Add(0x04);                          // MessageType.Event
+        packet.Add(messageType);                   // MessageType.Event / OperationResponse
         packet.AddRange(eventData);
 
         return packet.ToArray();
