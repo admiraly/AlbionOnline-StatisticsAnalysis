@@ -24,8 +24,12 @@ try
 }
 catch (Exception ex) when (FindInner<DllNotFoundException>(ex) is not null)
 {
-    Log.Error("Native libpcap library not found. Install it: 'sudo apt-get install libpcap0.8' (Debian/Ubuntu), "
-              + "'sudo dnf install libpcap' (Fedora) or 'sudo pacman -S libpcap' (Arch). On Windows, install Npcap.");
+    Log.Error("Native libpcap could not be loaded. The binding needs an unversioned 'libpcap.so'. On Linux:");
+    Log.Error("  Debian/Ubuntu : sudo apt-get install libpcap0.8 && sudo ln -sf libpcap.so.0.8 /usr/lib/$(uname -m)-linux-gnu/libpcap.so");
+    Log.Error("                  (or simply: sudo apt-get install libpcap-dev)");
+    Log.Error("  Fedora        : sudo dnf install libpcap libpcap-devel");
+    Log.Error("  Arch          : sudo pacman -S libpcap");
+    Log.Error("On Windows, install Npcap (https://npcap.com).");
     return 3;
 }
 catch (Exception ex)
