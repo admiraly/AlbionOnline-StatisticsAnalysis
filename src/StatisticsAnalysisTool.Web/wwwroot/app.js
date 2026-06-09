@@ -2,6 +2,7 @@
 
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => n.toLocaleString("en-US");
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 async function api(path, method = "GET", body) {
   const opts = { method, headers: {} };
@@ -77,6 +78,39 @@ function renderStatus(s) {
   $("btn-stop").disabled = !s.running;
 }
 
+function renderCombat(snap) {
+  const tbody = $("dmg-table").querySelector("tbody");
+  const entries = snap.entries || [];
+  $("dmg-empty").style.display = entries.length ? "none" : "block";
+  $("dm-meta").textContent = entries.length
+    ? `${snap.durationSeconds}s · ${fmt(snap.totalDamage)} dmg`
+    : "";
+  tbody.innerHTML = entries
+    .map((e, i) => {
+      const guild = e.guild ? ` <span class="muted">[${esc(e.guild)}]</span>` : "";
+      const npc = e.isPlayer ? "" : ' <span class="npc">(npc)</span>';
+      const heal = e.healing ? "+" + fmt(e.healing) : "";
+      return `<tr>
+        <td class="rank">${i + 1}</td>
+        <td><b>${esc(e.name)}</b>${guild}${npc}</td>
+        <td class="num dmg"><b>${fmt(e.damage)}</b><div class="barwrap"><div class="bar" style="width:${e.damagePercent}%"></div></div></td>
+        <td class="num">${fmt(e.dps)}</td>
+        <td class="num">${e.damagePercent}%</td>
+        <td class="num heal">${heal}</td>
+      </tr>`;
+    })
+    .join("");
+}
+
+async function refreshCombat() {
+  try {
+    const { data } = await api("/api/combat");
+    if (data) renderCombat(data);
+  } catch (e) {
+    /* transient; next tick retries */
+  }
+}
+
 async function refreshStatus() {
   try {
     const { data } = await api("/api/status");
@@ -122,6 +156,21 @@ $("btn-replay").addEventListener("click", async () => {
   refreshStatus();
 });
 
+$("btn-replay-combat").addEventListener("click", async () => {
+  await api("/api/replay-combat", "POST");
+  refreshCombat();
+  refreshStatus();
+});
+
+$("btn-reset-combat").addEventListener("click", async () => {
+  await api("/api/combat/reset", "POST");
+  refreshCombat();
+});
+
 refreshDevices();
 refreshStatus();
-setInterval(refreshStatus, 1000);
+refreshCombat();
+setInterval(() => {
+  refreshStatus();
+  refreshCombat();
+}, 1000);

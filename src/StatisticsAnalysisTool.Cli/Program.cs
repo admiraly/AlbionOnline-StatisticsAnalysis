@@ -16,6 +16,7 @@ try
     return command switch
     {
         "selftest" => RunSelfTest(),
+        "combat-selftest" => RunCombatSelfTest(),
         "devices" => RunDevices(),
         "capture" => RunCapture(args),
         "help" or "-h" or "--help" => PrintUsage(),
@@ -54,6 +55,21 @@ static int RunSelfTest()
     }
 
     Log.Error("SELF-TEST FAILED: {Message}", message);
+    return 1;
+}
+
+static int RunCombatSelfTest()
+{
+    Log.Information("Running damage-meter self-test (crafted combat packets, no capture)...");
+
+    var ok = CombatSelfTest.Run(out var message);
+    if (ok)
+    {
+        Log.Information("COMBAT SELF-TEST PASSED: {Message}", message);
+        return 0;
+    }
+
+    Log.Error("COMBAT SELF-TEST FAILED: {Message}", message);
     return 1;
 }
 
@@ -176,6 +192,7 @@ static int PrintUsage()
 
         Usage:
           sat-cli selftest                 Verify the Photon parse pipeline (no capture/root needed)
+          sat-cli combat-selftest          Verify the damage-meter aggregation (no capture/root needed)
           sat-cli devices                  List capture-capable network devices (libpcap)
           sat-cli capture [options]        Start live capture and decode Photon traffic
           sat-cli help                     Show this help

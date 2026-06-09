@@ -1,6 +1,7 @@
 using StatisticsAnalysisTool.Core;
 using StatisticsAnalysisTool.Core.Capture;
 using StatisticsAnalysisTool.Core.Diagnostics;
+using StatisticsAnalysisTool.Core.Features.Combat;
 using System.Collections.Concurrent;
 
 namespace StatisticsAnalysisTool.Web;
@@ -26,6 +27,8 @@ public sealed class EngineService : IDisposable
     private readonly ConcurrentDictionary<short, long> _eventCounts = new();
     private readonly ConcurrentQueue<RecentPacket> _recent = new();
     private const int RecentCap = 100;
+
+    private readonly CombatTracker _combat = new();
 
     public EngineService(ILogger<EngineService> logger)
     {
@@ -87,6 +90,33 @@ public sealed class EngineService : IDisposable
         lock (_gate)
         {
             _engine.Receiver.ReceivePacket(PhotonSampleData.EventPacket());
+        }
+    }
+
+    /// <summary>Live damage-meter snapshot (players by damage, with DPS/healing).</summary>
+    public CombatSnapshot GetCombat() => _combat.GetSnapshot();
+
+    public void ResetCombat() => _combat.Reset();
+
+    /// <summary>
+    /// Feeds a small crafted fight (three players hitting a dummy) through the live engine receiver
+    /// so the damage meter populates without live game traffic.
+    /// </summary>
+    public void ReplayCombatSample()
+    {
+        lock (_gate)
+        {
+            var receiver = _engine.Receiver;
+            const long target = 99;
+
+            receiver.ReceivePacket(PhotonSampleData.NewCharacterPacket(1, "Alice", "Guildy"));
+            receiver.ReceivePacket(PhotonSampleData.NewCharacterPacket(2, "Bob", "Guildy"));
+            receiver.ReceivePacket(PhotonSampleData.NewCharacterPacket(3, "Cara"));
+
+            receiver.ReceivePacket(PhotonSampleData.HealthUpdatePacket(1, target, -1200));
+            receiver.ReceivePacket(PhotonSampleData.HealthUpdatePacket(2, target, -800));
+            receiver.ReceivePacket(PhotonSampleData.HealthUpdatePacket(3, target, -400));
+            receiver.ReceivePacket(PhotonSampleData.HealthUpdatePacket(1, target, 300)); // a heal
         }
     }
 
@@ -154,6 +184,7 @@ public sealed class EngineService : IDisposable
         Interlocked.Increment(ref _eventTotal);
         _eventCounts.AddOrUpdate(code, 1, (_, v) => v + 1);
         Record("event", code, parameters.Count);
+        _combat.Handle(code, parameters);
     }
 
     private void OnRequest(short code, Dictionary<byte, object> parameters)
@@ -185,6 +216,8 @@ public sealed class EngineService : IDisposable
         while (_recent.TryDequeue(out _))
         {
         }
+
+        _combat.Reset();
     }
 
     private static string DescribeStartFailure(Exception ex)

@@ -84,6 +84,20 @@ app.MapPost("/api/replay-sample", () =>
     return Results.Json(new { ok = true });
 });
 
+app.MapGet("/api/combat", () => Results.Json(engine.GetCombat()));
+
+app.MapPost("/api/combat/reset", () =>
+{
+    engine.ResetCombat();
+    return Results.Json(engine.GetCombat());
+});
+
+app.MapPost("/api/replay-combat", () =>
+{
+    engine.ReplayCombatSample();
+    return Results.Json(engine.GetCombat());
+});
+
 Log.Information("Albion Statistics dashboard starting. Open http://localhost:8080 in a browser.");
 app.Run();
 
