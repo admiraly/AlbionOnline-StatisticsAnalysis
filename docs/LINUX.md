@@ -11,20 +11,26 @@ See [PORTING.md](../PORTING.md) for the architecture and roadmap.
 - **Capture + Photon/Protocol18 parsing** on Linux via `libpcap` (the same parser the Windows app
   uses) — `StatisticsAnalysisTool.Core`.
 - **`sat-cli`** — a headless tool: verify the parser/aggregation, list capture devices, run a live decode.
-- **Web dashboard** (`StatisticsAnalysisTool.Web`) — a browser UI with:
-  - capture status, detected server, totals, live decoded-event feed, top event codes;
+- **Web dashboard** (`StatisticsAnalysisTool.Web`) — a tabbed browser UI:
+  - **Overview** — capture status, detected server, totals, live decoded-event feed, top event codes;
   - **Damage meter** — live damage / DPS / healing per player;
-  - **Loot log** — who looted which item / how much silver, from whom;
-  - **Map history** — zones entered, with time spent in each.
+  - **Loot log** — who looted which item / how much silver, with **item names + icons**;
+  - **Gathering** — gathered resources, per-resource totals with names + icons;
+  - **Player** — session fame / silver / might / favor (and per-hour);
+  - **Party** — current party members;
+  - **Map** — zones entered, with time spent in each;
+  - **Item search** — search the bundled item database (names + icons) with **live market prices**
+    (AO Data Project API).
 
-Each dashboard panel has a **Replay** button that injects crafted sample packets, so you can see it
-work without live game traffic.
+Item names/icons come from a bundled Albion item index (`Core/Data/items.txt`, ao-bin-dumps) plus
+the official render service; market prices are fetched live. Each panel has a **Replay** button that
+injects crafted sample packets, so you can see it work without live game traffic.
 
-**Not yet ported / known limits:** loot shows item **ids** (the item-name database isn't ported
-yet) and map history shows raw **cluster ids / island names** (the friendly world-zone database
-isn't ported yet). Auction-house market data, dungeon timers, and the richer per-spell combat
-breakdowns from the Windows app are future milestones. The engine already decodes the traffic these
-build on — see [PORTING.md](../PORTING.md).
+**Not yet ported / known limits:** map history shows raw **cluster ids / island names** (the
+friendly world-zone database isn't ported yet); mob names aren't resolved. Auction-house *capture*
+(vs. the price API), dungeon timers, crafting calculator, guild/storage windows and richer per-spell
+combat breakdowns are future milestones. The engine already decodes much of the traffic these build
+on — see [PORTING.md](../PORTING.md).
 
 ## Requirements
 

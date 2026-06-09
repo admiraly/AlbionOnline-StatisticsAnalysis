@@ -70,14 +70,21 @@ is additive; shared logic is unified over time (see "De-duplication" below).
 - [x] Linux packaging + run docs: multi-stage `Dockerfile`, `docker-compose.yml`, `sat-linux.slnx`,
       and [docs/LINUX.md](docs/LINUX.md) (libpcap/`libpcap.so`, `setcap`, security notes).
 - [x] Damage meter — live damage / DPS / healing per player (`Core/Features/Combat`).
-- [x] Loot logger — grabbed items / silver per looter (`Core/Features/Loot`). *(item ids; names = follow-up)*
+- [x] Loot logger — grabbed items / silver per looter, with item names + icons (`Core/Features/Loot`).
 - [x] Map history — zones entered + dwell time (`Core/Features/Map`). *(cluster ids; friendly names = follow-up)*
+- [x] Item database — bundled ao-bin-dumps index (`Core/Data/items.txt`, `Core/Items/ItemDatabase`):
+      index → name + render icon, name search. Powers loot/gathering names and the item-search tab.
+- [x] Market prices — live AO Data Project lookup (`Core/Items/MarketService`) in the item-search tab.
+- [x] Player session stats — fame/silver/might/favor (`Core/Features/Player`).
+- [x] Gathering — `HarvestFinished` per-resource totals with names/icons (`Core/Features/Gathering`).
+- [x] Party — current members (`Core/Features/Party`).
+- [x] Tabbed dashboard tying the above together.
 
-Remaining follow-ups (the engine already decodes the traffic; these need extra data subsystems or
-views): item-name resolution (game item DB), friendly zone names (world DB), auction-house market
-data, dungeon entry/exit timers, and richer per-spell combat breakdowns. The existing WPF handlers
-and event models under `src/StatisticsAnalysisTool/Network/` are the reference for which event
-codes and parameter indices each feature uses; the `EventCodes` / `OperationCodes` enums are
+Remaining follow-ups (the engine already decodes much of the traffic; these need extra data or
+views): friendly zone names (world DB) + mob names, auction-house *capture* (vs. the price API),
+dungeon entry/exit timers, crafting calculator, guild/storage/trade windows, and richer per-spell
+combat breakdowns. The WPF handlers/event models under `src/StatisticsAnalysisTool/Network/` are the
+reference for event codes + parameter indices; the `EventCodes` / `OperationCodes` enums are
 mirrored into `Core/Events` (re-sync on upstream game-patch changes).
 
 ## De-duplication (later)
