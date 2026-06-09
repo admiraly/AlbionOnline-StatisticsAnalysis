@@ -62,13 +62,21 @@ is additive; shared logic is unified over time (see "De-duplication" below).
 ## Roadmap
 
 - [x] Install .NET 10 SDK; confirm cross-platform parse chain builds.
-- [ ] **Engine first:** `Core` library with a settings-abstracted libpcap capture provider →
-      Photon parser; console host that decodes live/sample traffic. Verified on Linux (Docker).
-- [ ] Web dashboard skeleton: device selection, server-detection status, live decoded-event feed.
+- [x] **Engine first:** `Core` library with a settings-abstracted libpcap capture provider →
+      Photon parser; `sat-cli` host (`selftest` / `devices` / `capture`). Verified on Linux
+      (Docker): parse self-test passes and libpcap enumerates devices on a clean container.
+- [x] Web dashboard skeleton (`Web`): server-detection status, totals, top event codes, live
+      decoded-event feed, device list, start/stop, replay-sample. Verified on Linux (Docker).
+- [x] Linux packaging + run docs: multi-stage `Dockerfile`, `docker-compose.yml`, `sat-linux.slnx`,
+      and [docs/LINUX.md](docs/LINUX.md) (libpcap/`libpcap.so`, `setcap`, security notes).
 - [ ] Damage meter (DPS/healing/fame per player).
 - [ ] Market & loot (auction search/prices, loot logger, trade monitor).
 - [ ] Dungeon & map (dungeon tracker, entry timer, map history).
-- [ ] Linux packaging + run docs (Dockerfile, setcap, README).
+
+The remaining feature milestones expose data the engine already decodes. Each needs a (mostly
+WPF-free) tracker that consumes the relevant Photon events/operations and a dashboard view; the
+existing WPF handlers under `src/StatisticsAnalysisTool/Network/` are the reference for which event
+codes and parameter indices each feature uses.
 
 ## De-duplication (later)
 
@@ -79,12 +87,15 @@ the shared capture/parse/tracking code, removing the duplication. Tracked as a f
 ## Building
 
 ```bash
-# cross-platform projects (engine, web) — build/run anywhere
-dotnet build src/StatisticsAnalysisTool.Core/StatisticsAnalysisTool.Core.csproj
+# cross-platform engine + cli + web (no WPF) — build/run anywhere
+dotnet build src/sat-linux.slnx -c Release
 
 # Windows-only WPF app (unchanged) — requires Windows
 dotnet build src/StatisticsAnalysisTool/StatisticsAnalysisTool.csproj
 ```
 
+See [docs/LINUX.md](docs/LINUX.md) for running on Linux (Docker, native, CLI, libpcap/capabilities).
+
 The Windows WPF project (`net10.0-windows`) will not restore/build on Linux — that is expected
-and does not affect the cross-platform engine or web dashboard.
+and does not affect the cross-platform engine or web dashboard. A repo-level `nuget.config` pins
+nuget.org so restore works regardless of the host's NuGet configuration.

@@ -30,6 +30,18 @@ Unzip the `.zip` file and start `StatisticsAnalysisTool.exe` with a double click
 
 ![tool_dir](https://user-images.githubusercontent.com/14247773/170473306-4dcc629e-384e-41b2-ada8-657cabe1b472.png)
 
+### Linux (this fork)
+The Windows download above is the original WPF app. This fork also ships a **cross-platform engine
+and a browser dashboard** that run natively on Linux:
+
+```bash
+docker compose up --build      # then open http://localhost:8080
+```
+
+Live capture needs libpcap and raw-capture privileges, and Albion must run on the same host. Full
+instructions (Docker, native .NET, the `sat-cli` headless tool, capabilities, troubleshooting) are
+in **[docs/LINUX.md](docs/LINUX.md)**, and the design is documented in
+[PORTING.md](PORTING.md).
 
 ### Tracking via socket
 If tracking is used via socket, the tool only needs to be started as an administrator for it to work fully.
@@ -57,9 +69,9 @@ https://npcap.com/ (Normally the latest version should work!)
 
 ❌ Windows XP, Vista, 7 and 8 are not supported!
 
-❌ Linux is currently not supported!
+🐧 Linux: this fork adds a cross-platform engine + web dashboard — see [docs/LINUX.md](docs/LINUX.md). The original Windows WPF app remains Windows-only.
 
-❌ Mac is currently not supported!
+❌ Mac is currently not supported! (The cross-platform engine/web build runs on macOS too, but is untested there.)
 
 ### Can I use the tool with Geforce Now
 No, unfortunately this is not technically possible.
