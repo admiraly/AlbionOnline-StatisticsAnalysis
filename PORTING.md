@@ -69,14 +69,16 @@ is additive; shared logic is unified over time (see "De-duplication" below).
       decoded-event feed, device list, start/stop, replay-sample. Verified on Linux (Docker).
 - [x] Linux packaging + run docs: multi-stage `Dockerfile`, `docker-compose.yml`, `sat-linux.slnx`,
       and [docs/LINUX.md](docs/LINUX.md) (libpcap/`libpcap.so`, `setcap`, security notes).
-- [ ] Damage meter (DPS/healing/fame per player).
-- [ ] Market & loot (auction search/prices, loot logger, trade monitor).
-- [ ] Dungeon & map (dungeon tracker, entry timer, map history).
+- [x] Damage meter — live damage / DPS / healing per player (`Core/Features/Combat`).
+- [x] Loot logger — grabbed items / silver per looter (`Core/Features/Loot`). *(item ids; names = follow-up)*
+- [x] Map history — zones entered + dwell time (`Core/Features/Map`). *(cluster ids; friendly names = follow-up)*
 
-The remaining feature milestones expose data the engine already decodes. Each needs a (mostly
-WPF-free) tracker that consumes the relevant Photon events/operations and a dashboard view; the
-existing WPF handlers under `src/StatisticsAnalysisTool/Network/` are the reference for which event
-codes and parameter indices each feature uses.
+Remaining follow-ups (the engine already decodes the traffic; these need extra data subsystems or
+views): item-name resolution (game item DB), friendly zone names (world DB), auction-house market
+data, dungeon entry/exit timers, and richer per-spell combat breakdowns. The existing WPF handlers
+and event models under `src/StatisticsAnalysisTool/Network/` are the reference for which event
+codes and parameter indices each feature uses; the `EventCodes` / `OperationCodes` enums are
+mirrored into `Core/Events` (re-sync on upstream game-patch changes).
 
 ## De-duplication (later)
 

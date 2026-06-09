@@ -32,7 +32,8 @@ Unzip the `.zip` file and start `StatisticsAnalysisTool.exe` with a double click
 
 ### Linux (this fork)
 The Windows download above is the original WPF app. This fork also ships a **cross-platform engine
-and a browser dashboard** that run natively on Linux:
+and a browser dashboard** that run natively on Linux — with a live **damage meter**, **loot log**
+and **map history** over the same Photon parser:
 
 ```bash
 docker compose up --build      # then open http://localhost:8080
