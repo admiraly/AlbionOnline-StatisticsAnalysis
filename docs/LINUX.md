@@ -49,29 +49,32 @@ on — see [PORTING.md](../PORTING.md).
 - **Raw-capture privileges** (`CAP_NET_RAW`, usually `CAP_NET_ADMIN` too) — see below.
 - To capture Albion traffic, **the game must run on (or route through) the same host**.
 
-## Option A — Docker (recommended)
+## Option A — Docker on Linux (recommended)
+
+On the **Linux machine where you play Albion**:
 
 ```bash
 docker compose up --build        # then open http://localhost:8087
 ```
 
-Open the dashboard at **<http://localhost:8087>** — not `http://0.0.0.0:8087` (`0.0.0.0` is the
-bind-all address the server listens on, not a browsable URL).
-
-The default compose publishes the port, so it's reachable on Windows, macOS and Linux. Equivalent
-plain Docker:
+The default compose uses **`network_mode: host`** (required — the container must share the host's
+network to see game traffic) and **auto-starts capture**, so it works out of the box. Open the
+dashboard at **<http://localhost:8087>** — not `http://0.0.0.0:8087` (`0.0.0.0` is just the bind-all
+address). Equivalent plain Docker:
 
 ```bash
 docker build -t sat-web .
-docker run --rm -p 8087:8087 --cap-add NET_RAW --cap-add NET_ADMIN sat-web
+docker run --rm --network host --cap-add NET_RAW --cap-add NET_ADMIN sat-web
 ```
 
-> **Live capture needs host networking (native Linux only).** To capture real game traffic the
-> container must share the host network — on a native Linux host, swap the published port for host
-> networking: in `docker-compose.yml` remove the `ports:` block and uncomment `network_mode: host`
-> (or `docker run --network host …`). Host networking is **not** supported on Docker Desktop
-> (Windows/macOS); there the dashboard works via the published port but cannot see game traffic, so
-> run natively on the Linux box where Albion runs.
+The status badge should show **capturing**. Play for a moment and the panels fill in. If a panel
+stays empty, see **Troubleshooting** below.
+
+> **Docker Desktop (Windows/macOS) is view-only.** It does not give containers the host's real
+> network, so capture cannot work there and `network_mode: host` won't expose the port. To merely
+> look at the UI on Windows/macOS, edit `docker-compose.yml`: comment out `network_mode: host` and
+> add a `ports: ["8087:8087"]` block (the file has both, with notes). Real capturing must run on the
+> Linux box where Albion runs.
 
 ## Option B — Native .NET (no Docker)
 
@@ -141,9 +144,30 @@ sudo ./cli/sat-cli capture --seconds 30
 
 ## Troubleshooting
 
+### Dashboard opens but every panel is empty
+
+This is almost always a **capture** problem (not a parsing one — the "Replay" buttons working proves
+the parser is fine). Check, in order:
+
+1. **Networking.** With Docker you MUST use `network_mode: host` (the default compose) — a bridge /
+   published-port container cannot see the host's game traffic. If you changed it to `ports:`, switch
+   back to `network_mode: host`. (And this only works on native Linux Docker, not Docker Desktop.)
+2. **Is capture running?** The status badge should read **capturing**. If it says *stopped* with a
+   red banner, the banner says why (missing libpcap or `CAP_NET_RAW`). Capture auto-starts unless
+   `SAT_AUTOSTART=false`.
+3. **Privileges.** Capture needs `CAP_NET_RAW` — the compose adds it; bare `docker run` needs
+   `--cap-add NET_RAW --cap-add NET_ADMIN`; native runs need `sudo`/`setcap`.
+4. **Prove capture headlessly** with the CLI on the same box while the game runs:
+   `sat-cli capture --seconds 30` (add `--all` to drop the Photon-port filter, e.g. behind a VPN).
+   Zero events means traffic isn't reaching the capture — wrong interface, VPN, or Albion not on this
+   host. Non-zero means the engine works and the issue is elsewhere.
+5. **Interface / VPN.** If traffic is on an unexpected port (VPN, ExitLag), use the **capture all**
+   toggle in the web UI or `--all` on the CLI.
+
+### Other
+
 | Symptom | Fix |
 |---------|-----|
 | `Native libpcap could not be loaded` / `Unable to load DLL 'pcap'` | Install libpcap and ensure `libpcap.so` exists (see Requirements). |
 | `devices` lists nothing, or capture won't start | Missing `CAP_NET_RAW` — run with `sudo` or `setcap`. |
-| Dashboard works but no traffic is decoded | Albion isn't running on this host, traffic is on an unexpected interface, or a VPN is in use — try `--all` (CLI) or the “capture all” toggle (web). |
-| `selftest` passes but live capture is empty | The parser is fine; it's a capture/privilege/interface issue, not a parsing one. |
+| `selftest` passes but live capture is empty | The parser is fine; it's a capture/privilege/interface/networking issue (see above). |

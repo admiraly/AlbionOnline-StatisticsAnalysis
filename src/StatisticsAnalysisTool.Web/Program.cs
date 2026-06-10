@@ -185,6 +185,16 @@ app.MapGet("/api/items/prices", async (string items, string? server, MarketServi
     }
 });
 
+// Auto-start capture on launch so the dashboard works out of the box (set SAT_AUTOSTART=false to
+// require clicking "Start capture"). If capture can't start (no libpcap / no CAP_NET_RAW), the
+// failure is surfaced in /api/status as lastError and shown in the dashboard banner.
+var autoStart = Environment.GetEnvironmentVariable("SAT_AUTOSTART");
+if (string.IsNullOrEmpty(autoStart) || autoStart is "true" or "1" || autoStart.Equals("true", StringComparison.OrdinalIgnoreCase))
+{
+    Log.Information("Auto-starting capture (set SAT_AUTOSTART=false to disable).");
+    engine.Start(new CaptureOptions());
+}
+
 Log.Information("Albion Statistics dashboard starting. Open http://localhost:8087 in a browser.");
 app.Run();
 

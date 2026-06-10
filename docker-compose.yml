@@ -2,22 +2,23 @@ services:
   sat-web:
     build: .
     image: sat-web
-    # Default: publish the port so the dashboard is reachable at http://localhost:8087 on
-    # Windows, macOS and Linux (Docker Desktop included).
-    ports:
-      - "8087:8087"
+    # Host networking is REQUIRED to capture Albion traffic: the container must share the host's
+    # network namespace to see the interface the game uses. On a Linux host the dashboard is then
+    # reachable at http://localhost:8087 directly (no port mapping needed), and capture works.
+    network_mode: host
     cap_add:
       - NET_RAW
       - NET_ADMIN
     environment:
-      # Bind to all interfaces on 8087 inside the container. Open it at http://localhost:8087.
       - ASPNETCORE_URLS=http://0.0.0.0:8087
+      # Start capturing as soon as the container is up. Set to false to require clicking "Start".
+      - SAT_AUTOSTART=true
     restart: unless-stopped
 
-    # ── Live capture on NATIVE LINUX ──────────────────────────────────────────────────────────
-    # To capture real Albion traffic, the container must share the host's network. On a native
-    # Linux host, DELETE the `ports:` block above and uncomment the line below instead. (Host
-    # networking is NOT supported on Docker Desktop for Windows/macOS — there it only serves the
-    # dashboard via the published port and cannot see host traffic.)
+    # ── VIEW-ONLY on Docker Desktop (Windows/macOS) ───────────────────────────────────────────
+    # Docker Desktop does NOT give a container the host's real network, so capture cannot work
+    # there and `network_mode: host` won't even expose the port. To just open the UI on
+    # Windows/macOS, COMMENT OUT `network_mode: host` above and use port mapping instead:
     #
-    # network_mode: host
+    # ports:
+    #   - "8087:8087"
